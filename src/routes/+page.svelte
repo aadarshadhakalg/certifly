@@ -12,6 +12,7 @@
 		y: number;
 		name: string;
 	}[] = [];
+	let csv = [];
 
 	onMount(() => {
 		// set width of image
@@ -23,8 +24,36 @@
 		const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 		const img = document.getElementById('template-image') as HTMLImageElement;
 		const fieldsContainer = document.getElementById('form-container') as HTMLDivElement;
+		const csvInput = document.getElementById('csv-input') as HTMLInputElement;
 
-		window.addEventListener('click', (event) => {
+		const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+		img.onload = () => {
+			// aspect ratio of image
+			const aspectRatio = img.width / img.height;
+
+			// image new size
+			img.width = width;
+			img.height = img.width / aspectRatio;
+
+			// set canvas size
+			canvas.width = img.width;
+			canvas.height = img.height;
+
+			// draw template on canvas
+			ctx.drawImage(img, 0, 0, img.width, img.height);
+
+			window.addEventListener('click', addPlaces);
+
+			csvInput.addEventListener('change', onCsvLoad);
+		};
+
+		function isMouseOverCanvas(cursorX: number, cursorY: number): boolean {
+			const { x, y, height, width } = canvas.getBoundingClientRect();
+			return cursorX >= x && cursorX <= x + width && cursorY >= y && cursorY <= y + height;
+		}
+
+		function addPlaces(event: MouseEvent) {
 			const x = event.clientX;
 			const y = event.clientY;
 
@@ -45,23 +74,21 @@
 					});
 				});
 			}
-		});
+		}
 
-		const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-
-		img.onload = () => {
-			// img.width = width;
-			canvas.width = img.width;
-			canvas.height = img.height;
-
-			ctx.drawImage(img, 0, 0, img.width, img.height);
-		};
-
-		function isMouseOverCanvas(cursorX: number, cursorY: number) {
-			const { x, y, height, width } = canvas.getBoundingClientRect();
-			return cursorX >= x && cursorX <= x + width && cursorY >= y && cursorY <= y + height;
+		function onCsvLoad() {
+			const csvReader = new FileReader();
+			csvReader.readAsText(csvInput.files?.[0] as Blob);
+			csvReader.onload = (e: ProgressEvent<FileReader>) => {
+				const csvString = e.target?.result as string;
+				csv = csvString.split('\n').map((row) => row.split(','));
+			};
 		}
 	});
+
+	function handleFieldsSubmit() {
+		console.log('hello');
+	}
 </script>
 
 <Template
@@ -79,7 +106,13 @@
 
 <img style="display: none;" src={templatePath} alt="template" id="template-image" />
 <canvas id="canvas" />
-<div id="form-container" />
+<form id="form-container" on:submit={handleFieldsSubmit}>
+	<button type="submit">Generate</button>
+</form>
+
+<p>Drop the CSV here.</p>
+<p>Warning: Don't upload csv file before uploading the template</p>
+<input type="file" id="csv-input" accept=".csv" />
 
 <style>
 	canvas {
