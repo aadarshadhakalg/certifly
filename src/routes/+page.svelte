@@ -4,6 +4,7 @@
 	import { v4 } from 'uuid';
 
 	let isTemplateLoaded = false;
+	let isCsvLoaded = false;
 	let templatePath = '';
 	let width = 0;
 	let textboxes: {
@@ -12,7 +13,7 @@
 		y: number;
 		name: string;
 	}[] = [];
-	let csv = [];
+	let csv: string[][] = [];
 
 	onMount(() => {
 		// set width of image
@@ -82,12 +83,53 @@
 			csvReader.onload = (e: ProgressEvent<FileReader>) => {
 				const csvString = e.target?.result as string;
 				csv = csvString.split('\n').map((row) => row.split(','));
+				isCsvLoaded = true;
 			};
 		}
 	});
 
 	function handleFieldsSubmit() {
-		console.log('hello');
+		if (!isCsvLoaded) {
+			return alert('Please upload csv file');
+		}
+
+		if (!isTemplateLoaded) {
+			return alert('Please upload template');
+		}
+
+		if (csv.length === 0) {
+			return alert('Please upload a non-empty csv file');
+		}
+
+		const csvFields = csv[0];
+		let data: { field: string; x: number; y: number; data: string[] }[] = [];
+
+		csvFields.forEach((csvField: string) => {
+			const index = textboxes.findIndex((textbox) => textbox.name.trim() === csvField.trim());
+
+			if (index === -1) {
+				return;
+			}
+
+			data.push({
+				field: csvField,
+				x: textboxes[index].x,
+				y: textboxes[index].y,
+				data: []
+			});
+		});
+
+		csv.forEach((row, rowIndex) => {
+			if (rowIndex === 0) {
+				return;
+			}
+
+			data.forEach((field) => {
+				field.data.push(row[csvFields.indexOf(field.field)]);
+			});
+		});
+
+		console.log(data);
 	}
 </script>
 
