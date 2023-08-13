@@ -12,7 +12,6 @@
 
 	onMount(() => {
 		const templateInput = document.getElementById('template-input') as HTMLInputElement;
-		const templatePreview = document.getElementById('template-preview') as HTMLDivElement;
 
 		templateInput.addEventListener('change', (event) => {
 			const selectedtemplate = (event.target as HTMLInputElement).files?.[0];
@@ -21,18 +20,6 @@
 				const reader = new FileReader();
 
 				reader.onload = (e: ProgressEvent<FileReader>) => {
-					const img = document.createElement('img');
-					img.src = e.target?.result as string;
-					img.alt = 'Uploaded template';
-					img.style.maxWidth = '100%';
-					img.style.maxHeight = '100%';
-
-					// Clear previous preview
-					templatePreview.innerHTML = '';
-
-					// Append the new preview template
-					templatePreview.appendChild(img);
-
 					loadedInfo(e.target?.result as string);
 				};
 
@@ -44,4 +31,3 @@
 
 <p>Drop the template here.</p>
 <input type="file" id="template-input" accept="image/png, image/jpeg" />
-<div id="template-preview" />
