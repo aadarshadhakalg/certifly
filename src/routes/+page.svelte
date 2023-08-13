@@ -14,6 +14,8 @@
 		name: string;
 	}[] = [];
 	let csv: string[][] = [];
+	let imgOrigSize = { width: 0, height: 0 };
+	let imgDisplaySize = { width: 0, height: 0 };
 
 	onMount(() => {
 		// set width of image
@@ -32,10 +34,13 @@
 		img.onload = () => {
 			// aspect ratio of image
 			const aspectRatio = img.width / img.height;
+			imgOrigSize = { width: img.width, height: img.height };
 
 			// image new size
 			img.width = width;
 			img.height = img.width / aspectRatio;
+
+			imgDisplaySize = { width: img.width, height: img.height };
 
 			// set canvas size
 			canvas.width = img.width;
@@ -50,16 +55,20 @@
 		};
 
 		function isMouseOverCanvas(cursorX: number, cursorY: number): boolean {
-			const { x, y, height, width } = canvas.getBoundingClientRect();
-			return cursorX >= x && cursorX <= x + width && cursorY >= y && cursorY <= y + height;
+			const { x, y } = canvas.getBoundingClientRect();
+			return (
+				cursorX >= x &&
+				cursorX <= x + imgDisplaySize.width &&
+				cursorY >= y &&
+				cursorY <= y + imgDisplaySize.height
+			);
 		}
 
 		function addPlaces(event: MouseEvent) {
-			const x = event.clientX;
-			const y = event.clientY;
+			const { x, y } = canvas.getBoundingClientRect();
 
-			if (isMouseOverCanvas(x, y)) {
-				textboxes.push({ id: v4(), x, y, name: '' });
+			if (isMouseOverCanvas(event.clientX, event.clientY)) {
+				textboxes.push({ id: v4(), x: event.clientX - x, y: event.clientY - y, name: '' });
 				const textbox = document.createElement('input');
 				textbox.type = 'text';
 				textbox.id = textboxes[textboxes.length - 1].id;
@@ -101,6 +110,8 @@
 			return alert('Please upload a non-empty csv file');
 		}
 
+		const previewsContainer = document.getElementById('previews-container') as HTMLDivElement;
+
 		const csvFields = csv[0];
 		let data: { field: string; x: number; y: number; data: string[] }[] = [];
 
@@ -129,7 +140,31 @@
 			});
 		});
 
-		console.log(data);
+		const dataFirst = data[0];
+
+		if (!dataFirst) {
+			return alert('No matching field found');
+		}
+
+		previewsContainer.textContent = '';
+		for (let i = 0; i < dataFirst.data.length; i++) {
+			const canvas = document.createElement('canvas') as HTMLCanvasElement;
+			const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+			const img = document.getElementById('template-image') as HTMLImageElement;
+
+			canvas.width = img.width;
+			canvas.height = img.height;
+
+			ctx.drawImage(img, 0, 0, img.width, img.height);
+			ctx.font = '16px Arial';
+			// ctx.fillText('hello world', 5, 10);
+
+			data.forEach((element) => {
+				ctx.fillText(element.data[i], element.x, element.y);
+			});
+
+			previewsContainer.append(canvas);
+		}
 	}
 </script>
 
@@ -155,6 +190,12 @@
 <p>Drop the CSV here.</p>
 <p>Warning: Don't upload csv file before uploading the template</p>
 <input type="file" id="csv-input" accept=".csv" />
+
+<!-- download button -->
+<button>Click to Download</button>
+
+<!-- previews container -->
+<div id="previews-container" />
 
 <style>
 	canvas {
