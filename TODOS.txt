@@ -1,0 +1,7 @@
+Visual representation of fields
+Choosing of fonts and colors
+Download certificates in original resolution
+Dynamic naming of certificates
+Styling of site
+Better error handling (with a separate toast component, rather than alert)
+Mailing feature
