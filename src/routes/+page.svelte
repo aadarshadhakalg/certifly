@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import Template from '../components/template.svelte';
 	import { v4 } from 'uuid';
+	import JSZip from 'jszip';
+	import FileSaver from 'file-saver';
 
 	let isTemplateLoaded = false;
 	let isCsvLoaded = false;
@@ -166,6 +168,23 @@
 			previewsContainer.append(canvas);
 		}
 	}
+
+	function download() {
+		const previewsContainer = document.getElementById('previews-container') as HTMLDivElement;
+		const previews = previewsContainer.querySelectorAll('canvas');
+
+		const zip = new JSZip();
+
+		previews.forEach((preview, index) => {
+			const img = document.createElement('img');
+			img.src = preview.toDataURL('image/png');
+			zip.file(`preview-${index + 1}.png`, img.src.split(',')[1], { base64: true });
+		});
+
+		zip.generateAsync({ type: 'blob' }).then((content) => {
+			FileSaver.saveAs(content, 'previews.zip');
+		});
+	}
 </script>
 
 <Template
@@ -192,7 +211,7 @@
 <input type="file" id="csv-input" accept=".csv" />
 
 <!-- download button -->
-<button>Click to Download</button>
+<button on:click={download}>Click to Download</button>
 
 <!-- previews container -->
 <div id="previews-container" />
