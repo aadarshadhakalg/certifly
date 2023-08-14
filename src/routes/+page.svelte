@@ -171,18 +171,21 @@
 
 	function download() {
 		const previewsContainer = document.getElementById('previews-container') as HTMLDivElement;
-		const previews = previewsContainer.querySelectorAll('canvas');
+		const certificates = previewsContainer.querySelectorAll('canvas');
 
 		const zip = new JSZip();
 
-		previews.forEach((preview, index) => {
+		certificates.forEach((certificate, index) => {
 			const img = document.createElement('img');
-			img.src = preview.toDataURL('image/png');
-			zip.file(`preview-${index + 1}.png`, img.src.split(',')[1], { base64: true });
+			img.src = certificate.toDataURL('image/png');
+
+			zip
+				.folder('certificates')
+				?.file(`certificate-${index + 1}.png`, img.src.split(',')[1], { base64: true });
 		});
 
 		zip.generateAsync({ type: 'blob' }).then((content) => {
-			FileSaver.saveAs(content, 'previews.zip');
+			FileSaver.saveAs(content, 'certificates.zip');
 		});
 	}
 </script>
