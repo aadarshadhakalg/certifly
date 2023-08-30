@@ -1,9 +1,30 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import Papa from 'papaparse';
+	import { v4 } from 'uuid';
+
 	let isTemplateLoaded = false;
 	let origDimensions: { width: number; height: number } = { width: 0, height: 0 };
+	let csvData: any[] = [];
+	let fields: {
+		id: string;
+		value: string;
+		position: { x: number; y: number };
+		fontSize: number;
+		fontFamily: string;
+		color: string;
+	}[] = [];
 
 	let templateCanvas: HTMLCanvasElement;
 	let templateDisplay: HTMLImageElement;
+	let csvReader: HTMLInputElement;
+	let fieldsContainer: HTMLDivElement;
+
+	function render(ctx: CanvasRenderingContext2D) {
+		ctx.font = '16px Arial';
+		ctx.fillStyle = 'black';
+		ctx.drawImage(templateCanvas, 0, 0);
+	}
 
 	const handleFileInput = (e: Event) => {
 		const target = e.target as HTMLInputElement;
@@ -45,10 +66,65 @@
 		if (!ctx) {
 			return;
 		}
-		ctx.font = '14px Cursive';
+		ctx.font = '14px Arial';
 		ctx.fillText('Hello World', offsetXCanvas, offsetYCanvas);
 		templateDisplay.src = templateCanvas.toDataURL() as string;
+
+		fields.push({
+			id: v4(),
+			value: '',
+			position: { x: offsetXCanvas, y: offsetYCanvas },
+			fontSize: 14,
+			fontFamily: 'Arial',
+			color: 'black'
+		});
+
+		fieldsContainer.innerHTML = '';
+
+		fields.forEach((field) => {
+			const textbox = document.createElement('input');
+			textbox.type = 'text';
+			['bg-transparent', 'border', 'border-white'].forEach((className) =>
+				textbox.classList.add(className)
+			);
+			textbox.id = field.id;
+			textbox.addEventListener('change', (e) => {
+				const target = e.target as HTMLInputElement;
+				const index = fields.findIndex((field) => field.id === target.id);
+				console.log(target.value);
+				fields[index].value = target.value;
+				console.log(fields);
+			});
+			fieldsContainer.append(textbox);
+		});
 	};
+
+	onMount(() => {
+		const csvReaderInput = document.getElementById('csv-reader') as HTMLInputElement;
+
+		csvReaderInput.onchange = () => {
+			const file = csvReaderInput.files?.[0];
+			if (!file) {
+				return;
+			}
+			const reader = new FileReader();
+			reader.readAsText(file);
+			reader.onloadend = () => {
+				const csv = reader.result as string;
+
+				Papa.parse(csv, {
+					header: true, // Set this to true if your CSV string has headers
+					skipEmptyLines: true,
+					complete: (result: any) => {
+						csvData.push(...result.data);
+					},
+					error: (error: Error) => {
+						console.error('Error parsing CSV:', error);
+					}
+				});
+			};
+		};
+	});
 </script>
 
 {#if !isTemplateLoaded}
@@ -65,6 +141,10 @@
 />
 <img id="display-template" bind:this={templateDisplay} alt="template-display" />
 <canvas bind:this={templateCanvas} class="hidden" />
+
+<div id="fields" bind:this={fieldsContainer} />
+
+<input id="csv-reader" type="file" bind:this={csvReader} accept=".csv" />
 
 <style>
 	#display-template {
