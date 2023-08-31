@@ -2,8 +2,11 @@
 	import { onMount } from 'svelte';
 	import Papa from 'papaparse';
 	import { v4 } from 'uuid';
+	import JSZip from 'jszip';
+	import FileSaver from 'file-saver';
 
 	let isTemplateLoaded = false;
+	let generated = false;
 	let origDimensions: { width: number; height: number } = { width: 0, height: 0 };
 	let origImage: HTMLImageElement;
 	let csvData: any[] = [];
@@ -168,6 +171,26 @@
 				previewsContainer.append(preview);
 			});
 		});
+
+		generated = true;
+	}
+
+	function download() {
+		const certificates = certificatesContainer.querySelectorAll('canvas');
+		const zip = new JSZip();
+
+		certificates.forEach((certificate, index) => {
+			const img = document.createElement('img');
+			img.src = certificate.toDataURL('image/png');
+
+			zip
+				.folder('certificates')
+				?.file(`certificate-${index + 1}.png`, img.src.split(',')[1], { base64: true });
+		});
+
+		zip.generateAsync({ type: 'blob' }).then((content) => {
+			FileSaver.saveAs(content, 'certificates.zip');
+		});
 	}
 </script>
 
@@ -190,6 +213,10 @@
 
 {#if fields.length !== 0}
 	<button on:click={handleFieldsSubmit}>Generate</button>
+{/if}
+
+{#if generated}
+	<button on:click={download}>Download</button>
 {/if}
 
 <input id="csv-reader" type="file" bind:this={csvReader} accept=".csv" />
