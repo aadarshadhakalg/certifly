@@ -5,6 +5,7 @@
 
 	let isTemplateLoaded = false;
 	let origDimensions: { width: number; height: number } = { width: 0, height: 0 };
+	let origImage: HTMLImageElement;
 	let csvData: any[] = [];
 	let fields: {
 		id: string;
@@ -19,11 +20,20 @@
 	let templateDisplay: HTMLImageElement;
 	let csvReader: HTMLInputElement;
 	let fieldsContainer: HTMLDivElement;
+	let certificatesContainer: HTMLDivElement;
+	let previewsContainer: HTMLDivElement;
 
 	function render(ctx: CanvasRenderingContext2D) {
-		ctx.font = '16px Arial';
-		ctx.fillStyle = 'black';
-		ctx.drawImage(templateCanvas, 0, 0);
+		ctx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+		ctx.drawImage(origImage, 0, 0);
+
+		fields.forEach((field) => {
+			ctx.font = `${field.fontSize}px ${field.fontFamily}`;
+			ctx.fillStyle = field.color;
+			ctx.fillText(field.value, field.position.x, field.position.y);
+		});
+
+		templateDisplay.src = templateCanvas.toDataURL() as string;
 	}
 
 	const handleFileInput = (e: Event) => {
@@ -38,12 +48,13 @@
 			isTemplateLoaded = true;
 
 			const ctx = templateCanvas.getContext('2d');
-			const img = new Image();
-			img.src = reader.result as string;
-			templateCanvas.width = img.width;
-			templateCanvas.height = img.height;
-			origDimensions = { width: img.width, height: img.height };
-			ctx?.drawImage(img, 0, 0);
+
+			origImage = new Image();
+			origImage.src = reader.result as string;
+			templateCanvas.width = origImage.width;
+			templateCanvas.height = origImage.height;
+			origDimensions = { width: origImage.width, height: origImage.height };
+			ctx?.drawImage(origImage, 0, 0);
 
 			// display template
 			templateDisplay.src = templateCanvas.toDataURL() as string;
@@ -91,9 +102,9 @@
 			textbox.addEventListener('change', (e) => {
 				const target = e.target as HTMLInputElement;
 				const index = fields.findIndex((field) => field.id === target.id);
-				console.log(target.value);
 				fields[index].value = target.value;
-				console.log(fields);
+
+				render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
 			});
 			fieldsContainer.append(textbox);
 		});
@@ -125,6 +136,39 @@
 			};
 		};
 	});
+
+	function handleFieldsSubmit() {
+		if (!isTemplateLoaded) {
+			return alert('Please upload template');
+		}
+
+		if (csvData.length === 0) {
+			return alert('Please upload a non-empty csv file');
+		}
+
+		previewsContainer.innerHTML = '';
+
+		csvData.forEach((row) => {
+			fields.forEach((field) => {
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+				canvas.width = origDimensions.width;
+				canvas.height = origDimensions.height;
+
+				ctx.drawImage(origImage, 0, 0);
+				ctx.font = `${field.fontSize}px ${field.fontFamily}`;
+				ctx.fillStyle = field.color;
+				ctx.fillText(row[field.value], field.position.x, field.position.y);
+
+				certificatesContainer.append(canvas);
+
+				const preview = document.createElement('img');
+				preview.src = canvas.toDataURL() as string;
+				preview.classList.add('preview');
+				previewsContainer.append(preview);
+			});
+		});
+	}
 </script>
 
 {#if !isTemplateLoaded}
@@ -134,7 +178,7 @@
 {/if}
 <input
 	type="file"
-	id="template-img"
+	class="preview"
 	name="template-img"
 	accept="image/png, image/jpeg"
 	on:change={handleFileInput}
@@ -144,10 +188,17 @@
 
 <div id="fields" bind:this={fieldsContainer} />
 
+{#if fields.length !== 0}
+	<button on:click={handleFieldsSubmit}>Generate</button>
+{/if}
+
 <input id="csv-reader" type="file" bind:this={csvReader} accept=".csv" />
 
+<div class="hidden" bind:this={certificatesContainer} />
+<div bind:this={previewsContainer} />
+
 <style>
-	#display-template {
+	.preview {
 		width: 100%;
 		height: 100%;
 		object-fit: contain;
