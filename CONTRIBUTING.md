@@ -109,7 +109,7 @@ If you want to contribute on the code side of the project, then you will need ru
 
 ## Join The Project Team
 
-Contact us at <itsabhiyandhakal@gmail.com>
+Contact us at <contact@kuosc.org.np>
 
 ## Attribution
 
