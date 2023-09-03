@@ -24,7 +24,7 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 ## Code of Conduct
 
 This project and everyone participating in it is governed by the
-[Certifly Code of Conduct](https://github.com/kuosc2005/certiflyblob/master/CODE_OF_CONDUCT.md).
+[Certifly Code of Conduct](https://github.com/kuosc2005/certifly/blob/master/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable behavior
 to <>.
 
