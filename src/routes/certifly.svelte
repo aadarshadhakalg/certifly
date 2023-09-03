@@ -145,7 +145,7 @@
 		};
 	});
 
-	function handleFieldsSubmit() {
+	function generateCertificates() {
 		if (!isTemplateLoaded) {
 			return alert('Please upload template');
 		}
@@ -157,24 +157,25 @@
 		previewsContainer.innerHTML = '';
 
 		csvData.forEach((row) => {
-			fields.forEach((field) => {
-				const canvas = document.createElement('canvas');
-				const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-				canvas.width = origDimensions.width;
-				canvas.height = origDimensions.height;
+			const canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+			canvas.width = origDimensions.width;
+			canvas.height = origDimensions.height;
 
-				ctx.drawImage(origImage, 0, 0);
+			ctx.drawImage(origImage, 0, 0);
+
+			fields.forEach((field) => {
 				ctx.font = `${field.fontSize}px ${field.fontFamily}`;
 				ctx.fillStyle = field.color;
 				ctx.fillText(row[field.value], field.position.x, field.position.y);
-
-				certificatesContainer.append(canvas);
-
-				const preview = document.createElement('img');
-				preview.src = canvas.toDataURL() as string;
-				preview.classList.add('preview');
-				previewsContainer.append(preview);
 			});
+
+			certificatesContainer.append(canvas);
+
+			const preview = document.createElement('img');
+			preview.src = canvas.toDataURL() as string;
+			preview.classList.add('preview');
+			previewsContainer.append(preview);
 		});
 
 		generated = true;
@@ -217,7 +218,7 @@
 <div id="fields" bind:this={fieldsContainer} />
 
 {#if fields.length !== 0}
-	<button on:click={handleFieldsSubmit}>Generate</button>
+	<button on:click={generateCertificates}>Generate</button>
 {/if}
 
 {#if generated}
