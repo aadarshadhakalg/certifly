@@ -105,6 +105,11 @@
 			textbox.addEventListener('change', (e) => {
 				const target = e.target as HTMLInputElement;
 				const index = fields.findIndex((field) => field.id === target.id);
+
+				if (fields[index].value === target.value) {
+					return alert('Please enter a different value');
+				}
+
 				fields[index].value = target.value;
 
 				render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
