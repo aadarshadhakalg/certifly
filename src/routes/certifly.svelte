@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Papa from 'papaparse';
-	import { v4 } from 'uuid';
 	import JSZip from 'jszip';
 	import FileSaver from 'file-saver';
 
@@ -22,7 +21,6 @@
 	let templateCanvas: HTMLCanvasElement;
 	let templateDisplay: HTMLImageElement;
 	let csvReader: HTMLInputElement;
-	let fieldsContainer: HTMLDivElement;
 	let certificatesContainer: HTMLDivElement;
 	let previewsContainer: HTMLDivElement;
 
@@ -84,38 +82,18 @@
 		ctx.fillText('Hello World', offsetXCanvas, offsetYCanvas);
 		templateDisplay.src = templateCanvas.toDataURL() as string;
 
-		fields.push({
-			id: v4(),
-			value: '',
-			position: { x: offsetXCanvas, y: offsetYCanvas },
-			fontSize: 14,
-			fontFamily: 'Arial',
-			color: 'black'
-		});
-
-		fieldsContainer.innerHTML = '';
-
-		fields.forEach((field) => {
-			const textbox = document.createElement('input');
-			textbox.type = 'text';
-			['bg-transparent', 'border', 'border-white'].forEach((className) =>
-				textbox.classList.add(className)
-			);
-			textbox.id = field.id;
-			textbox.addEventListener('change', (e) => {
-				const target = e.target as HTMLInputElement;
-				const index = fields.findIndex((field) => field.id === target.id);
-
-				if (fields[index].value === target.value) {
-					return alert('Please enter a different value');
-				}
-
-				fields[index].value = target.value;
-
-				render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
-			});
-			fieldsContainer.append(textbox);
-		});
+		// fields.push(;
+		fields = [
+			...fields,
+			{
+				id: `field-${fields.length + 1}`,
+				value: '',
+				position: { x: offsetXCanvas, y: offsetYCanvas },
+				fontSize: 14,
+				fontFamily: 'Arial',
+				color: 'black'
+			}
+		];
 	};
 
 	onMount(() => {
@@ -165,9 +143,11 @@
 			ctx.drawImage(origImage, 0, 0);
 
 			fields.forEach((field) => {
-				ctx.font = `${field.fontSize}px ${field.fontFamily}`;
-				ctx.fillStyle = field.color;
-				ctx.fillText(row[field.value], field.position.x, field.position.y);
+				if (row[field.value]) {
+					ctx.font = `${field.fontSize}px ${field.fontFamily}`;
+					ctx.fillStyle = field.color;
+					ctx.fillText(row[field.value], field.position.x, field.position.y);
+				}
 			});
 
 			certificatesContainer.append(canvas);
@@ -198,6 +178,24 @@
 			FileSaver.saveAs(content, 'certificates.zip');
 		});
 	}
+
+	const updateField = (e: Event) => {
+		e.preventDefault();
+		const target = e.target as HTMLFormElement;
+
+		const htmlFields = Object.entries(target.elements).map((item) => item[1]) as (
+			| HTMLInputElement
+			| HTMLSelectElement
+		)[];
+
+		const sd = fields.find(
+			(item) =>
+				item.id ===
+				(htmlFields.find((item) => item.name === 'field-details') as HTMLSelectElement).value
+		);
+
+		console.log(sd);
+	};
 </script>
 
 {#if !isTemplateLoaded}
@@ -215,9 +213,37 @@
 <img id="display-template" bind:this={templateDisplay} alt="template-display" />
 <canvas bind:this={templateCanvas} class="hidden" />
 
-<div id="fields" bind:this={fieldsContainer} />
-
 {#if fields.length !== 0}
+	<h2 class="text-xl">Change field details</h2>
+	<form on:submit={updateField}>
+		<select name="field-details">
+			{#each fields as field}
+				<option value={field.id}>
+					{#if field.value === ''}
+						{field.id}
+					{:else}
+						{field.value}
+					{/if}
+				</option>
+			{/each}
+		</select>
+		<div>
+			<label for="font-size">Font size</label>
+			<input type="number" name="font-size" min="1" max="100" />
+		</div>
+		<div>
+			<label for="value">Value</label>
+			<input type="text" name="value" />
+		</div>
+
+		<div>
+			<label for="color">Color</label>
+			<input type="color" name="color" />
+		</div>
+
+		<button>Update</button>
+	</form>
+
 	<button on:click={generateCertificates}>Generate</button>
 {/if}
 
@@ -237,5 +263,10 @@
 		object-fit: contain;
 		max-width: 900px;
 		display: block;
+	}
+
+	input,
+	select {
+		background: transparent;
 	}
 </style>
