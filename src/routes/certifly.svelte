@@ -246,6 +246,22 @@
 		selectedField.demo = target.value;
 		render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
 	};
+
+	const setColor = (e: Event) => {
+		const target = e.target as HTMLInputElement;
+		const selectedField = fields.find(
+			(item) =>
+				item.id ===
+				(document.querySelector('select[name="field-details"]') as HTMLSelectElement).value
+		);
+
+		if (!selectedField) {
+			return;
+		}
+
+		selectedField.color = target.value;
+		render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
+	};
 </script>
 
 {#if !isTemplateLoaded}
@@ -302,7 +318,7 @@
 
 	<div>
 		<label for="color">Color</label>
-		<input type="color" name="color" />
+		<input type="color" on:change={setColor} name="color" />
 	</div>
 
 	<button>Update</button>
