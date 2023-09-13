@@ -12,6 +12,7 @@
 	let fields: {
 		id: string;
 		value: string;
+		demo: string;
 		position: { x: number; y: number };
 		fontSize: number;
 		fontFamily: string;
@@ -31,7 +32,7 @@
 		fields.forEach((field) => {
 			ctx.font = `${field.fontSize}px ${field.fontFamily}`;
 			ctx.fillStyle = field.color;
-			ctx.fillText(field.value, field.position.x, field.position.y);
+			ctx.fillText(field.demo, field.position.x, field.position.y);
 		});
 
 		templateDisplay.src = templateCanvas.toDataURL() as string;
@@ -82,12 +83,12 @@
 		ctx.fillText('Hello World', offsetXCanvas, offsetYCanvas);
 		templateDisplay.src = templateCanvas.toDataURL() as string;
 
-		// fields.push(;
 		fields = [
 			...fields,
 			{
 				id: `field-${fields.length + 1}`,
 				value: '',
+				demo: 'hello world',
 				position: { x: offsetXCanvas, y: offsetYCanvas },
 				fontSize: 14,
 				fontFamily: 'Arial',
@@ -179,22 +180,38 @@
 		});
 	}
 
-	const updateField = (e: Event) => {
-		e.preventDefault();
-		const target = e.target as HTMLFormElement;
+	// const updateField = (e: Event) => {
+	// 	e.preventDefault();
+	// 	const target = e.target as HTMLFormElement;
+	//
+	// 	const htmlFields = Object.entries(target.elements).map((item) => item[1]) as (
+	// 		| HTMLInputElement
+	// 		| HTMLSelectElement
+	// 	)[];
+	//
+	// 	const sd = fields.find(
+	// 		(item) =>
+	// 			item.id ===
+	// 			(htmlFields.find((item) => item.name === 'field-details') as HTMLSelectElement).value
+	// 	);
+	//
+	// 	console.log(sd);
+	// };
 
-		const htmlFields = Object.entries(target.elements).map((item) => item[1]) as (
-			| HTMLInputElement
-			| HTMLSelectElement
-		)[];
-
-		const sd = fields.find(
+	const setFontSize = (e: Event) => {
+		const target = e.target as HTMLInputElement;
+		const selectedField = fields.find(
 			(item) =>
 				item.id ===
-				(htmlFields.find((item) => item.name === 'field-details') as HTMLSelectElement).value
+				(document.querySelector('select[name="field-details"]') as HTMLSelectElement).value
 		);
 
-		console.log(sd);
+		if (!selectedField) {
+			return;
+		}
+
+		selectedField.fontSize = parseInt(target.value);
+		render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
 	};
 </script>
 
@@ -215,34 +232,41 @@
 
 {#if fields.length !== 0}
 	<h2 class="text-xl">Change field details</h2>
-	<form on:submit={updateField}>
-		<select name="field-details">
-			{#each fields as field}
-				<option value={field.id}>
-					{#if field.value === ''}
-						{field.id}
-					{:else}
-						{field.value}
-					{/if}
-				</option>
-			{/each}
-		</select>
-		<div>
-			<label for="font-size">Font size</label>
-			<input type="number" name="font-size" min="1" max="100" />
-		</div>
-		<div>
-			<label for="value">Value</label>
-			<input type="text" name="value" />
-		</div>
 
-		<div>
-			<label for="color">Color</label>
-			<input type="color" name="color" />
-		</div>
+	<select name="field-details">
+		{#each fields as field}
+			<option value={field.id}>
+				{#if field.value === ''}
+					{field.id}
+				{:else}
+					{field.value}
+				{/if}
+			</option>
+		{/each}
+	</select>
 
-		<button>Update</button>
-	</form>
+	<div>
+		<label for="font-size">Font size</label>
+		<input
+			type="number"
+			name="font-size"
+			min="1"
+			max="100"
+			on:change={setFontSize}
+			value={fields[0].fontSize}
+		/>
+	</div>
+	<div>
+		<label for="value">Value</label>
+		<input type="text" name="value" />
+	</div>
+
+	<div>
+		<label for="color">Color</label>
+		<input type="color" name="color" />
+	</div>
+
+	<button>Update</button>
 
 	<button on:click={generateCertificates}>Generate</button>
 {/if}
