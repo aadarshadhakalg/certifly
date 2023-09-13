@@ -180,24 +180,6 @@
 		});
 	}
 
-	// const updateField = (e: Event) => {
-	// 	e.preventDefault();
-	// 	const target = e.target as HTMLFormElement;
-	//
-	// 	const htmlFields = Object.entries(target.elements).map((item) => item[1]) as (
-	// 		| HTMLInputElement
-	// 		| HTMLSelectElement
-	// 	)[];
-	//
-	// 	const sd = fields.find(
-	// 		(item) =>
-	// 			item.id ===
-	// 			(htmlFields.find((item) => item.name === 'field-details') as HTMLSelectElement).value
-	// 	);
-	//
-	// 	console.log(sd);
-	// };
-
 	const setFontSize = (e: Event) => {
 		const target = e.target as HTMLInputElement;
 		const selectedField = fields.find(
@@ -211,6 +193,57 @@
 		}
 
 		selectedField.fontSize = parseInt(target.value);
+		render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
+	};
+
+	const handleSelectChange = (e: Event) => {
+		const target = e.target as HTMLSelectElement;
+		const selectedField = fields.find((item) => item.id === target.value);
+
+		if (!selectedField) {
+			return;
+		}
+
+		const fontSizeInput = document.querySelector('input[name="font-size"]') as HTMLInputElement;
+		const valueInput = document.querySelector('input[name="value"]') as HTMLInputElement;
+		const demoTextInput = document.querySelector('input[name="demo-text"]') as HTMLInputElement;
+		const colorInput = document.querySelector('input[name="color"]') as HTMLInputElement;
+
+		fontSizeInput.value = selectedField.fontSize.toString();
+		valueInput.value = selectedField.value;
+		demoTextInput.value = selectedField.value;
+		colorInput.value = selectedField.color;
+	};
+
+	const setValue = (e: Event) => {
+		const target = e.target as HTMLInputElement;
+		const selectedField = fields.find(
+			(item) =>
+				item.id ===
+				(document.querySelector('select[name="field-details"]') as HTMLSelectElement).value
+		);
+
+		if (!selectedField) {
+			return;
+		}
+
+		selectedField.value = target.value;
+		render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
+	};
+
+	const setDemoText = (e: Event) => {
+		const target = e.target as HTMLInputElement;
+		const selectedField = fields.find(
+			(item) =>
+				item.id ===
+				(document.querySelector('select[name="field-details"]') as HTMLSelectElement).value
+		);
+
+		if (!selectedField) {
+			return;
+		}
+
+		selectedField.demo = target.value;
 		render(templateCanvas.getContext('2d') as CanvasRenderingContext2D);
 	};
 </script>
@@ -233,7 +266,7 @@
 {#if fields.length !== 0}
 	<h2 class="text-xl">Change field details</h2>
 
-	<select name="field-details">
+	<select on:change={handleSelectChange} name="field-details">
 		{#each fields as field}
 			<option value={field.id}>
 				{#if field.value === ''}
@@ -256,9 +289,15 @@
 			value={fields[0].fontSize}
 		/>
 	</div>
+
 	<div>
 		<label for="value">Value</label>
-		<input type="text" name="value" />
+		<input type="text" name="value" on:change={setValue} />
+	</div>
+
+	<div>
+		<label for="demo-text">Demo Text</label>
+		<input type="text" name="demo-text" on:change={setDemoText} />
 	</div>
 
 	<div>
