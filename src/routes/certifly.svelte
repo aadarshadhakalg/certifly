@@ -158,6 +158,7 @@
 			preview.src = canvas.toDataURL() as string;
 			preview.classList.add('preview');
 			previewsContainer.append(preview);
+			generated = true;
 		});
 
 		generated = true;
