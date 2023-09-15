@@ -3,6 +3,7 @@
 	import Papa from 'papaparse';
 	import JSZip from 'jszip';
 	import FileSaver from 'file-saver';
+	import { v4 } from 'uuid';
 
 	let isTemplateLoaded = false;
 	let generated = false;
@@ -86,8 +87,8 @@
 		fields = [
 			...fields,
 			{
-				id: `field-${fields.length + 1}`,
-				value: '',
+				id: v4(),
+				value: `field-${fields.length + 1}`,
 				demo: 'hello world',
 				position: { x: offsetXCanvas, y: offsetYCanvas },
 				fontSize: 14,
@@ -285,11 +286,7 @@
 	<select on:change={handleSelectChange} name="field-details">
 		{#each fields as field}
 			<option value={field.id}>
-				{#if field.value === ''}
-					{field.id}
-				{:else}
-					{field.value}
-				{/if}
+				{field.value}
 			</option>
 		{/each}
 	</select>
