@@ -1,6 +1,6 @@
 # Certifly - Web-based Certificate Generation Tool
 
-Certifly is an open-source web-based certificate generation tool written in Svelte by Kathmandu university Open Source Commmunity(KUOSC). It simplifies the process of creating certificates by allowing users to provide a template image and a CSV file containing recipient information.
+Certifly is an open-source web-based certificate generation tool written in Svelte by [Kathmandu university Open Source Commmunity (KUOSC)](https://kucc.ku.edu.np/kuosc/). It simplifies the process of creating certificates by allowing users to provide a template image and a CSV file containing recipient information.
 
 ## Table of Contents
 
