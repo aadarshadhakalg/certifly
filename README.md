@@ -36,7 +36,7 @@ Before you begin, ensure you have the following installed:
 1. Clone the Certifly repository to your local machine:
 
    ```bash
-   git clone https://github.com/yourusername/certifly.git
+   git clone git@github.com:kuosc2005/certifly.git
    cd certifly
    ```
 
