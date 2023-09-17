@@ -42,19 +42,19 @@ Before you begin, ensure you have the following installed:
 
 2. Install the project dependencies:
 
-```bash
-  pnpm install
-```
+   ```bash
+   pnpm install
+   ```
 
 ## Usage
 
 1. **Prepare your template image:**
 
-   - Create a template image (e.g., `certificate_template.png`) with placeholders where you want recipient information to appear.
+   Create a template image (e.g., `certificate_template.png`) with placeholders where you want recipient information to appear.
 
 2. **Prepare your CSV data file:**
 
-   - Create a CSV file (e.g., `recipients.csv`). For example:
+   Create a CSV file (e.g., `recipients.csv`). For example:<br>
 
    ```csv
    name,email,course,date
@@ -64,9 +64,9 @@ Before you begin, ensure you have the following installed:
 
 3. **Start the Certifly application**
 
-```bash
-  pnpm dev
-```
+   ```bash
+   pnpm dev
+   ```
 
 4. **Use the web interface:**
 
