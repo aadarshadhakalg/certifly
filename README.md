@@ -16,8 +16,6 @@ Certifly is an open-source web-based certificate generation tool written in Svel
 
 - **Easy Certificate Generation**: Generate customized certificates by providing a template image and recipient data in CSV format.
 
-- **Template Customization**: Customize certificate appearance using template images with placeholders.
-
 - **Supports Various Formats**: Certifly supports PNG and JPEG/JPG image formats for templates and CSV data.
 
 - **Bulk Export**: Export generated certificates in bulk as a zip file.
@@ -36,7 +34,7 @@ Before you begin, ensure you have the following installed:
 1. Clone the Certifly repository to your local machine:
 
    ```bash
-   git clone https://github.com/yourusername/certifly.git
+   git clone git@github.com:kuosc2005/certifly.git
    cd certifly
    ```
 
@@ -50,7 +48,7 @@ Before you begin, ensure you have the following installed:
 
 1. **Prepare your template image:**
 
-   Create a template image (e.g., `certificate_template.png`) with placeholders where you want recipient information to appear.
+   Prepare certificate template image in PNG or JPEG/JPG format.
 
 2. **Prepare your CSV data file:**
 
@@ -68,13 +66,17 @@ Before you begin, ensure you have the following installed:
    pnpm dev
    ```
 
-4. **Use the web interface:**
+4. **Use the website:**
 
-- Open your web browser and navigate to the Certifly application (typically at http://localhost:5173).
+- Open your web browser and navigate to the Certifly application (typically at http://localhost:5173 during development).
 
-- Use the web interface to upload your template image and CSV data files. Make sure to specify the value in the template that match the columns in your CSV file.
+- Use the website to upload your template image and CSV data files.
 
-- After uploading the necessary files, click the "Generate" button.
+- Click on the template image to define placeholder
+
+- Make sure to specify the placeholder's value in the template that match the columns in your CSV file.
+
+- After uploading the necessary files and specifying placeholder, click the "Generate" button.
 
 - Download the certificates by clicking on "Download" button.
 
