@@ -297,7 +297,7 @@
 	<!-- Template display part -->
 	<div class="flex flex-col justify-center">
 		<div class=" mb-3 text-2xl text-center">
-			Templete:
+			Template:
 			<!-- {#if !isTemplateLoaded} -->
 			<!-- <label for="template-img" class="text-xl">Add template</label> -->
 			<!-- {:else} -->
@@ -419,9 +419,9 @@
 			</div>
 		</div>
 
-		<!-- Templete add section -->
+		<!-- Template add section -->
 		<div class="mt-4">
-			<div class="mb-2 underline">Upload Templete :</div>
+			<div class="mb-2 underline">Upload Template :</div>
 			<div class="mt-3">
 				<input
 					type="file"
